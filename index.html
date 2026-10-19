@@ -718,6 +718,145 @@ function startApp() {
 updateAuthMode();
 startApp();
 </script>
+<!-- 🥔 POTATO PATTERNS CAPITAL GOAL DASHBOARD -->
+<section id="potato-capital-dashboard" style="max-width:900px;margin:30px auto;padding:20px;background:#171b26;color:white;border-radius:18px;font-family:Arial,sans-serif;">
+  <h2 style="text-align:center;">🥔 Potato Capital Quest</h2>
+  <p style="text-align:center;color:#c6cad4;">Grow your capital. Reach your goal.</p>
 
+  <div style="text-align:center;padding:15px;">
+    <div id="potato-avatar" style="font-size:100px;transition:transform .5s;">🥔</div>
+    <h3 id="potato-stage">Your journey starts here!</h3>
+    <div style="height:18px;background:#343b4b;border-radius:20px;overflow:hidden;">
+      <div id="potato-progress-bar" style="height:100%;width:0%;background:#80d878;transition:width .6s;"></div>
+    </div>
+    <p id="potato-progress-text">0% of your goal achieved</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+    <div style="background:#252c3b;padding:15px;border-radius:12px;">
+      <label>Starting capital (₹)</label>
+      <input id="potato-starting" type="number" min="0" step="0.01" value="0" style="width:100%;padding:10px;box-sizing:border-box;margin-top:8px;">
+    </div>
+    <div style="background:#252c3b;padding:15px;border-radius:12px;">
+      <label>Capital goal (₹)</label>
+      <input id="potato-goal" type="number" min="1" step="0.01" value="100000" style="width:100%;padding:10px;box-sizing:border-box;margin-top:8px;">
+    </div>
+  </div>
+
+  <button id="potato-save-settings" style="width:100%;padding:12px;margin-top:15px;border:0;border-radius:10px;background:#80d878;color:#152018;font-weight:bold;">
+    Save My Capital Goal
+  </button>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:18px;">
+    <div style="background:#252c3b;padding:15px;border-radius:12px;">
+      <small>Starting Capital</small>
+      <h3 id="potato-start-display">₹0</h3>
+    </div>
+    <div style="background:#252c3b;padding:15px;border-radius:12px;">
+      <small>Trading P&L</small>
+      <h3 id="potato-pnl-display">₹0</h3>
+    </div>
+    <div style="background:#252c3b;padding:15px;border-radius:12px;">
+      <small>Cumulative Capital</small>
+      <h3 id="potato-current-display">₹0</h3>
+    </div>
+    <div style="background:#252c3b;padding:15px;border-radius:12px;">
+      <small>Amount Remaining</small>
+      <h3 id="potato-remaining-display">₹100,000</h3>
+    </div>
+  </div>
+
+  <p id="potato-status" role="status" style="text-align:center;margin-top:15px;"></p>
+  <p style="font-size:12px;color:#aeb5c5;text-align:center;">
+    Your progress should be based on your saved trading records and capital transactions.
+  </p>
+</section>
+
+<style>
+#potato-capital-dashboard input {
+  background:#fff;color:#111;border:1px solid #bbb;border-radius:7px;
+}
+#potato-capital-dashboard button {cursor:pointer;}
+@keyframes potatoBounce {
+  0%,100% { transform:translateY(0) rotate(-3deg); }
+  50% { transform:translateY(-9px) rotate(3deg); }
+}
+#potato-avatar {animation:potatoBounce 2s infinite;}
+</style>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const money = value => new Intl.NumberFormat("en-IN", {
+    style:"currency",currency:"INR",maximumFractionDigits:2
+  }).format(Number(value) || 0);
+
+  function renderPotato(start, goal, pnl = 0, deposits = 0, withdrawals = 0) {
+    const current = Math.max(0, start + pnl + deposits - withdrawals);
+    const progress = Math.max(0, Math.min(100, goal > 0 ? current / goal * 100 : 0));
+
+    $("potato-start-display").textContent = money(start);
+    $("potato-pnl-display").textContent = money(pnl);
+    $("potato-current-display").textContent = money(current);
+    $("potato-remaining-display").textContent = money(Math.max(0, goal-current));
+    $("potato-progress-bar").style.width = progress + "%";
+    $("potato-progress-text").textContent = progress.toFixed(1) + "% of your goal achieved";
+
+    let stage, emoji, scale;
+    if (progress >= 100) {
+      stage = "🏆 Goal achieved! Amazing work!";
+      emoji = "🥔🎉";
+      scale = 1.6;
+    } else if (progress >= 75) {
+      stage = "🌿 Almost there!";
+      emoji = "🥔";
+      scale = 1.4;
+    } else if (progress >= 50) {
+      stage = "🌱 Your potato is growing!";
+      emoji = "🥔";
+      scale = 1.25;
+    } else if (progress >= 25) {
+      stage = "🌱 Your journey is growing!";
+      emoji = "🥔";
+      scale = 1.1;
+    } else {
+      stage = "🥔 Your journey starts here!";
+      emoji = "🥔";
+      scale = 1;
+    }
+
+    $("potato-avatar").textContent = emoji;
+    $("potato-avatar").style.transform = "scale(" + scale + ")";
+    $("potato-stage").textContent = stage;
+  }
+
+  const startingInput = $("potato-starting");
+  const goalInput = $("potato-goal");
+
+  let savedStart = Number(localStorage.getItem("potatoStartingCapital") || 0);
+  let savedGoal = Number(localStorage.getItem("potatoCapitalGoal") || 100000);
+  startingInput.value = savedStart;
+  goalInput.value = savedGoal;
+
+  renderPotato(savedStart, savedGoal);
+
+  $("potato-save-settings").addEventListener("click", () => {
+    const start = Number(startingInput.value);
+    const goal = Number(goalInput.value);
+
+    if (!Number.isFinite(start) || start < 0 || !Number.isFinite(goal) || goal <= 0) {
+      $("potato-status").textContent = "Enter a valid starting capital and a goal greater than zero.";
+      return;
+    }
+
+    savedStart = start;
+    savedGoal = goal;
+    localStorage.setItem("potatoStartingCapital", String(start));
+    localStorage.setItem("potatoCapitalGoal", String(goal));
+    renderPotato(start, goal);
+    $("potato-status").textContent = "Goal saved on this device. Supabase account syncing is the next step.";
+  });
+})();
+</script>
 </body>
 </html>
