@@ -1,862 +1,103 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Potato Patterns | Trading Diary</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-:root {
-  --bg: #0b1120;
-  --panel: #141e30;
-  --border: #29364c;
-  --text: #edf2fa;
-  --muted: #93a4bd;
-  --green: #32d296;
-  --red: #ff697d;
-  --blue: #7198ff;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: Arial, sans-serif;
-}
-
-header {
-  padding: 22px 5%;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo { font-size: 21px; font-weight: bold; }
-.logo span { color: var(--green); }
-
-main {
-  max-width: 1100px;
-  margin: auto;
-  padding: 28px 16px;
-}
-
-h1 { font-size: 30px; margin-bottom: 8px; }
-.subtitle { color: var(--muted); margin-bottom: 25px; }
-
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 22px;
-  margin-bottom: 20px;
-}
-
-h2 { font-size: 19px; margin-top: 0; }
-
-input, select, textarea {
-  width: 100%;
-  background: #0b1424;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
-  margin: 6px 0 14px;
-  font-size: 15px;
-}
-
-textarea { min-height: 75px; resize: vertical; }
-
-label { font-size: 13px; color: var(--muted); }
-
-button {
-  border: 0;
-  border-radius: 8px;
-  padding: 12px 16px;
-  background: var(--green);
-  color: #06150f;
-  font-weight: bold;
-  cursor: pointer;
-  margin: 4px 4px 4px 0;
-}
-
-button.secondary {
-  background: #29364c;
-  color: var(--text);
-}
-
-button.danger {
-  background: #4a202d;
-  color: #ffb4bf;
-}
-
-button:disabled { opacity: .5; cursor: wait; }
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 14px;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.stat {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  padding: 17px;
-  border-radius: 12px;
-  min-width: 0;
-}
-
-.stat small { color: var(--muted); display: block; margin-bottom: 10px; }
-.stat strong { font-size: 22px; overflow-wrap: anywhere; }
-
-.green { color: var(--green); }
-.red { color: var(--red); }
-.muted { color: var(--muted); }
-
-.message {
-  padding: 12px;
-  border-radius: 8px;
-  margin: 12px 0;
-  overflow-wrap: anywhere;
-}
-
-.hidden { display: none !important; }
-
-.table-wrap { overflow-x: auto; }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 750px;
-}
-
-th, td {
-  padding: 13px 10px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
-
-th { color: var(--muted); }
-
-.empty {
-  padding: 25px;
-  text-align: center;
-  color: var(--muted);
-}
-
-footer {
-  text-align: center;
-  color: var(--muted);
-  padding: 25px;
-  font-size: 12px;
-}
-
-@media(max-width: 650px) {
-  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .grid { grid-template-columns: 1fr; }
-  h1 { font-size: 25px; }
-  .panel { padding: 16px; }
-  header { padding: 17px 16px; }
-}
+.two-stat{grid-template-columns:1fr 1fr}}
 </style>
 </head>
-
 <body>
 
-<header>
-  <div class="logo">🥔 Potato <span>Patterns</span></div>
-  <button id="logoutBtn" class="secondary hidden">Log out</button>
-</header>
+<section id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-brand"><div class="brand-mark">P</div><div class="brand-name">POTATO <span>PATTERNS</span><small>PERSONAL TRADING LAB</small></div></div>
+    <h1 id="authTitle">Your trading lab.</h1>
+    <p id="authSub">Private workspace for your trades, strategy results and performance.</p>
+    <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+    <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Your password"></div>
+    <button id="authBtn" class="btn primary">Log in</button>
+    <button id="switchAuthBtn" class="auth-switch">Need an account? Sign up</button>
+    <div id="authMessage" aria-live="polite"></div>
+  </div>
+</section>
 
-<main>
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">P</div><div class="brand-name">POTATO <span>PATTERNS</span><small>TRADING LAB</small></div></div>
+    <div><div class="nav-label">WORKSPACE</div><nav class="nav">
+      <button class="active" data-page="overview"><span class="ico">◫</span>Overview</button>
+      <button data-page="trades"><span class="ico">⇄</span>Trade history</button>
+      <button data-page="add"><span class="ico">＋</span>Log a trade</button>
+      <button data-page="analytics"><span class="ico">⌁</span>Analytics</button>
+      <button data-page="settings"><span class="ico">⚙</span>Capital & settings</button>
+    </nav></div>
+    <div class="sidebar-bottom"><span class="status-dot"></span><b>Personal workspace</b><small>Private trading journal · manual records</small></div>
+  </aside>
 
-  <section id="authSection">
-    <h1>Your Trading Diary</h1>
-    <p class="subtitle">Record every trade. Understand your edge. Improve your discipline.</p>
+  <main class="main">
+    <header class="topbar">
+      <div class="crumb">POTATO PATTERNS <span class="muted">/</span> <strong id="crumbTitle">Overview</strong></div>
+      <div class="top-actions"><span class="pill">MODE <strong>ANALYSIS</strong></span><div class="avatar" id="userAvatar">P</div><button class="btn subtle" id="logoutBtn">Log out</button></div>
+    </header>
 
-    <div class="panel">
-      <h2 id="authTitle">Create your account</h2>
+    <div class="content">
+      <section id="page-overview" class="page active">
+        <div class="page-head"><div><div class="eyebrow">PERSONAL PERFORMANCE TERMINAL</div><h1>Trading overview</h1><p>Your performance, without the noise.</p></div><button class="btn primary" data-goto="add">＋ Log a trade</button></div>
 
-      <label>Email address</label>
-      <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+        <div class="stats">
+          <div class="stat"><div class="stat-top">NET REALIZED P&L <span class="stat-icon">↗</span></div><strong id="ovPnl">₹0.00</strong><div class="stat-foot" id="ovPnlFoot">Closed trades only · manual journal</div></div>
+          <div class="stat"><div class="stat-top">CLOSED TRADES <span class="stat-icon">⇄</span></div><strong id="ovClosed">0</strong><div class="stat-foot">Trades with an exit price</div></div>
+          <div class="stat"><div class="stat-top">WIN RATE <span class="stat-icon">◎</span></div><strong id="ovWin">0.0%</strong><div class="stat-foot" id="ovWinFoot">0 winning trades</div></div>
+          <div class="stat"><div class="stat-top">PROFIT FACTOR <span class="stat-icon">⌁</span></div><strong id="ovPF">—</strong><div class="stat-foot">Gross wins ÷ gross losses</div></div>
+        </div>
 
-      <label>Password</label>
-      <input id="password" type="password" placeholder="At least 6 characters" autocomplete="current-password">
-
-      <button id="authBtn">Sign up</button>
-      <button id="switchAuthBtn" class="secondary">Already have an account? Log in</button>
-
-      <div id="authMessage" aria-live="polite"></div>
-    </div>
-  </section>
-
-  <section id="appSection" class="hidden">
-
-    <h1>Trading Dashboard</h1>
-    <p class="subtitle">Your trades, your data, your decisions.</p>
-
-    <div class="stats">
-      <div class="stat">
-        <small>Total P&L</small>
-        <strong id="totalPnl">₹0.00</strong>
-      </div>
-
-      <div class="stat">
-        <small>Closed Trades</small>
-        <strong id="closedCount">0</strong>
-      </div>
-
-      <div class="stat">
-        <small>Win Rate</small>
-        <strong id="winRate">0%</strong>
-      </div>
-
-      <div class="stat">
-        <small>Open Trades</small>
-        <strong id="openCount">0</strong>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Add a Trade</h2>
-
-      <form id="tradeForm">
-
-        <div class="grid">
-          <div>
-            <label>Trade date</label>
-            <input id="tradeDate" type="date" required>
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Realized P&L curve</h2><p>Cumulative results from your saved closed trades</p></div><span class="tag">NET JOURNAL</span></div>
+            <div class="panel-body"><div class="chart-area"><canvas id="equityChart"></canvas><div id="chartEmpty" class="chart-placeholder">Your equity curve will appear after you record closed trades.</div></div><div class="chart-legend"><span><i class="legend-dot"></i>Cumulative P&L</span><span>Sorted by trade date</span></div></div>
           </div>
 
-          <div>
-            <label>Instrument / Symbol</label>
-            <input id="instrument" type="text" placeholder="NIFTY, BTC, XAUT..." required>
-          </div>
-
-          <div>
-            <label>Direction</label>
-            <select id="direction" required>
-              <option value="Long">Long / Buy</option>
-              <option value="Short">Short / Sell</option>
-            </select>
-          </div>
-
-          <div>
-            <label>Quantity / Lots</label>
-            <input id="quantity" type="number" min="0.000001" step="any" value="1" required>
-          </div>
-
-          <div>
-            <label>Entry price</label>
-            <input id="entryPrice" type="number" min="0" step="any" placeholder="0.00" required>
-          </div>
-
-          <div>
-            <label>Exit price (leave blank if open)</label>
-            <input id="exitPrice" type="number" min="0" step="any" placeholder="Not closed yet">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Capital quest</h2><p>Track progress towards your personal goal</p></div><span>🥔</span></div>
+            <div class="panel-body">
+              <div class="goal-wrap"><div id="goalRing" class="ring"><strong id="goalPercent">0%</strong></div><div class="goal-details"><span class="mini-label">CURRENT CAPITAL*</span><strong id="currentCapital">₹0</strong><p id="goalRemaining">Set your capital and goal in settings.</p></div></div>
+              <div class="metric-line"><span>Starting capital</span><strong id="startCapitalText">₹0</strong></div>
+              <div class="metric-line"><span>Capital goal</span><strong id="goalText">₹100,000</strong></div>
+              <p class="muted" style="font-size:10px;margin:12px 0 0">*Estimate = starting capital + journal P&L. Not a live exchange balance.</p>
+              <button class="btn" style="width:100%;margin-top:13px" data-goto="settings">Configure capital goal</button>
+            </div>
           </div>
         </div>
 
-        <label>Why did you enter this trade?</label>
-        <textarea id="entryReason" placeholder="Setup, signal, confirmation..."></textarea>
-
-        <label>Why did you exit?</label>
-        <textarea id="exitReason" placeholder="Target, stop loss, manual exit..."></textarea>
-
-        <label>Lesson learned</label>
-        <textarea id="lessons" placeholder="What will you repeat or improve?"></textarea>
-
-        <button id="saveBtn" type="submit">Save Trade</button>
-        <div id="tradeMessage" aria-live="polite"></div>
-      </form>
-    </div>
-
-    <div class="panel">
-      <h2>Trade History</h2>
-      <p class="muted">P&L below is calculated from entry, exit and quantity. Trading fees and taxes are not automatically deducted.</p>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Instrument</th>
-              <th>Direction</th>
-              <th>Entry</th>
-              <th>Exit</th>
-              <th>Quantity</th>
-              <th>P&L</th>
-              <th>Details</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="tradeRows"></tbody>
-        </table>
-      </div>
-
-      <div id="emptyMessage" class="empty">No trades recorded yet. Add your first trade above.</div>
-      <div id="historyMessage" aria-live="polite"></div>
-    </div>
-
-  </section>
-
-</main>
-
-<footer>Potato Patterns · Trading decisions remain your responsibility.</footer>
-
-<script>
-/*
-  STEP 1: Replace these two placeholders with your own Supabase values.
-*/
-const SUPABASE_URL = "https://hwqzcqxrqybqixsdbmgv.supabase.co";
-const SUPABASE_KEY = "sb_publishable_imgCpsmcVVz33o2lrAUowg_R7k3UMpe";
-
-/*
-  This must match your exact Supabase table name.
-  Your table is named Trade with a capital T.
-*/
-const TABLE_NAME = "Trade";
-
-const authSection = document.getElementById("authSection");
-const appSection = document.getElementById("appSection");
-const authTitle = document.getElementById("authTitle");
-const authBtn = document.getElementById("authBtn");
-const switchAuthBtn = document.getElementById("switchAuthBtn");
-const authMessage = document.getElementById("authMessage");
-const tradeMessage = document.getElementById("tradeMessage");
-const historyMessage = document.getElementById("historyMessage");
-const logoutBtn = document.getElementById("logoutBtn");
-
-let supabaseClient;
-let currentUser = null;
-let isSignup = true;
-let trades = [];
-let busy = false;
-
-function showMessage(element, message, isError = false) {
-  element.textContent = message;
-  element.className = "message " + (isError ? "red" : "green");
-}
-
-function clearMessage(element) {
-  element.textContent = "";
-  element.className = "";
-}
-
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
-}
-
-function money(value) {
-  if (value === null || value === undefined || !Number.isFinite(Number(value))) {
-    return "—";
-  }
-
-  return Number(value).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
-
-function calculatePnl(trade) {
-  if (trade.exit_price === null || trade.exit_price === "") return null;
-
-  const entry = Number(trade.entry_price);
-  const exit = Number(trade.exit_price);
-  const quantity = Number(trade.quantity);
-
-  const difference = trade.direction === "Short"
-    ? entry - exit
-    : exit - entry;
-
-  return difference * quantity;
-}
-
-function setBusy(value) {
-  busy = value;
-  authBtn.disabled = value;
-  document.getElementById("saveBtn").disabled = value;
-}
-
-function updateAuthMode() {
-  authTitle.textContent = isSignup ? "Create your account" : "Welcome back";
-  authBtn.textContent = isSignup ? "Sign up" : "Log in";
-  switchAuthBtn.textContent = isSignup
-    ? "Already have an account? Log in"
-    : "New here? Create an account";
-}
-
-switchAuthBtn.addEventListener("click", () => {
-  isSignup = !isSignup;
-  clearMessage(authMessage);
-  updateAuthMode();
-});
-
-authBtn.addEventListener("click", async (event) => {
-  event.preventDefault();
-
-  if (busy) return;
-
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-
-  if (!email || !password) {
-    showMessage(authMessage, "Enter your email and password.", true);
-    return;
-  }
-
-  setBusy(true);
-  clearMessage(authMessage);
-
-  try {
-    let result;
-
-    if (isSignup) {
-      result = await supabaseClient.auth.signUp({
-        email,
-        password
-      });
-
-      if (result.error) throw result.error;
-
-      if (result.data.session) {
-        showMessage(authMessage, "Account created successfully.");
-      } else {
-        showMessage(
-          authMessage,
-          "Account created. Check your email to confirm your account, then log in."
-        );
-      }
-    } else {
-      result = await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (result.error) throw result.error;
-      showMessage(authMessage, "Login successful.");
-    }
-  } catch (error) {
-    showMessage(authMessage, error.message || "Authentication failed.", true);
-  } finally {
-    setBusy(false);
-  }
-});
-
-logoutBtn.addEventListener("click", async () => {
-  const { error } = await supabaseClient.auth.signOut();
-
-  if (error) {
-    alert(error.message);
-  }
-});
-
-document.getElementById("tradeDate").value =
-  new Date().toLocaleDateString("en-CA");
-
-document.getElementById("tradeForm").addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  if (!currentUser || busy) return;
-
-  clearMessage(tradeMessage);
-
-  const date = document.getElementById("tradeDate").value;
-  const instrument = document.getElementById("instrument").value.trim();
-  const direction = document.getElementById("direction").value;
-  const entry = Number(document.getElementById("entryPrice").value);
-  const exitInput = document.getElementById("exitPrice").value;
-  const quantity = Number(document.getElementById("quantity").value);
-
-  if (!date || !instrument || !Number.isFinite(entry) || entry < 0 ||
-      !Number.isFinite(quantity) || quantity <= 0) {
-    showMessage(tradeMessage, "Check the date, instrument, entry price and quantity.", true);
-    return;
-  }
-
-  let exit = null;
-
-  if (exitInput !== "") {
-    exit = Number(exitInput);
-
-    if (!Number.isFinite(exit) || exit < 0) {
-      showMessage(tradeMessage, "Enter a valid exit price or leave it blank.", true);
-      return;
-    }
-  }
-
-  const trade = {
-    user_id: currentUser.id,
-    trade_date: date,
-    instrument,
-    direction,
-    entry_price: entry,
-    exit_price: exit,
-    quantity,
-    pnl: null,
-    entry_reason: document.getElementById("entryReason").value.trim(),
-    exit_reason: document.getElementById("exitReason").value.trim(),
-    lessons: document.getElementById("lessons").value.trim()
-  };
-
-  trade.pnl = calculatePnl(trade);
-
-  setBusy(true);
-
-  try {
-    const { error } = await supabaseClient
-      .from(TABLE_NAME)
-      .insert(trade);
-
-    if (error) throw error;
-
-    showMessage(tradeMessage, "Trade saved successfully.");
-
-    document.getElementById("instrument").value = "";
-    document.getElementById("entryPrice").value = "";
-    document.getElementById("exitPrice").value = "";
-    document.getElementById("quantity").value = "1";
-    document.getElementById("entryReason").value = "";
-    document.getElementById("exitReason").value = "";
-    document.getElementById("lessons").value = "";
-
-    await loadTrades();
-  } catch (error) {
-    showMessage(tradeMessage, error.message || "Could not save trade.", true);
-  } finally {
-    setBusy(false);
-  }
-});
-
-async function deleteTrade(id) {
-  if (!currentUser) return;
-
-  if (!confirm("Delete this trade permanently?")) return;
-
-  clearMessage(historyMessage);
-
-  try {
-    const { error } = await supabaseClient
-      .from(TABLE_NAME)
-      .delete()
-      .eq("id", id)
-      .eq("user_id", currentUser.id);
-
-    if (error) throw error;
-
-    showMessage(historyMessage, "Trade deleted.");
-    await loadTrades();
-  } catch (error) {
-    showMessage(historyMessage, error.message || "Could not delete trade.", true);
-  }
-}
-
-function renderTrades() {
-  const rows = document.getElementById("tradeRows");
-  rows.innerHTML = "";
-
-  const closedTrades = trades.filter(t =>
-    t.exit_price !== null && t.exit_price !== ""
-  );
-
-  const totalPnl = closedTrades.reduce((sum, trade) => {
-    return sum + (calculatePnl(trade) ?? 0);
-  }, 0);
-
-  const winners = closedTrades.filter(t => calculatePnl(t) > 0).length;
-  const winRate = closedTrades.length
-    ? (winners / closedTrades.length) * 100
-    : 0;
-
-  document.getElementById("totalPnl").textContent =
-    (totalPnl < 0 ? "-₹" : "₹") + money(Math.abs(totalPnl));
-
-  document.getElementById("totalPnl").className =
-    totalPnl < 0 ? "red" : "green";
-
-  document.getElementById("closedCount").textContent = closedTrades.length;
-  document.getElementById("winRate").textContent = winRate.toFixed(1) + "%";
-  document.getElementById("openCount").textContent =
-    trades.length - closedTrades.length;
-
-  document.getElementById("emptyMessage").classList.toggle(
-    "hidden",
-    trades.length > 0
-  );
-
-  for (const trade of trades) {
-    const pnl = calculatePnl(trade);
-    const details = [
-      trade.entry_reason ? "Entry: " + trade.entry_reason : "",
-      trade.exit_reason ? "Exit: " + trade.exit_reason : "",
-      trade.lessons ? "Lesson: " + trade.lessons : ""
-    ].filter(Boolean).join("\n");
-
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-      <td>${escapeHTML(trade.trade_date)}</td>
-      <td>${escapeHTML(trade.instrument)}</td>
-      <td>${escapeHTML(trade.direction)}</td>
-      <td>${money(trade.entry_price)}</td>
-      <td>${trade.exit_price === null ? "Open" : money(trade.exit_price)}</td>
-      <td>${money(trade.quantity)}</td>
-      <td class="${pnl === null ? "" : pnl >= 0 ? "green" : "red"}">
-        ${pnl === null ? "—" : (pnl < 0 ? "-₹" : "₹") + money(Math.abs(pnl))}
-      </td>
-      <td><button type="button" class="secondary detailsBtn">View</button></td>
-      <td><button type="button" class="danger deleteBtn">Delete</button></td>
-    `;
-
-    row.querySelector(".detailsBtn").addEventListener("click", () => {
-      alert(details || "No trade notes were recorded.");
-    });
-
-    row.querySelector(".deleteBtn").addEventListener("click", () => {
-      deleteTrade(trade.id);
-    });
-
-    rows.appendChild(row);
-  }
-}
-
-async function loadTrades() {
-  if (!currentUser) return;
-
-  clearMessage(historyMessage);
-
-  try {
-    const { data, error } = await supabaseClient
-      .from(TABLE_NAME)
-      .select("*")
-      .eq("user_id", currentUser.id)
-      .order("trade_date", { ascending: false });
-
-    if (error) throw error;
-
-    trades = data || [];
-    renderTrades();
-  } catch (error) {
-    showMessage(
-      historyMessage,
-      "Could not load trades: " + (error.message || "Unknown error"),
-      true
-    );
-  }
-}
-
-function displaySession(session) {
-  currentUser = session?.user || null;
-
-  authSection.classList.toggle("hidden", !!currentUser);
-  appSection.classList.toggle("hidden", !currentUser);
-  logoutBtn.classList.toggle("hidden", !currentUser);
-
-  if (currentUser) {
-    loadTrades();
-  } else {
-    trades = [];
-    renderTrades();
-  }
-}
-
-function startApp() {
-  if (
-    SUPABASE_URL.includes("PASTE_YOUR") ||
-    SUPABASE_KEY.includes("PASTE_YOUR")
-  ) {
-    showMessage(
-      authMessage,
-      "Setup required: add your Supabase Project URL and Publishable Key in the code.",
-      true
-    );
-    return;
-  }
-
-  try {
-    supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
-      displaySession(session);
-    });
-
-    supabaseClient.auth.getSession().then(({ data, error }) => {
-      if (error) {
-        showMessage(authMessage, error.message, true);
-        return;
-      }
-
-      displaySession(data.session);
-    });
-  } catch (error) {
-    showMessage(authMessage, error.message || "Could not connect to Supabase.", true);
-  }
-}
-
-updateAuthMode();
-startApp();
-</script>
-<!-- 🥔 POTATO PATTERNS CAPITAL GOAL DASHBOARD -->
-<section id="potato-capital-dashboard" style="max-width:900px;margin:30px auto;padding:20px;background:#171b26;color:white;border-radius:18px;font-family:Arial,sans-serif;">
-  <h2 style="text-align:center;">🥔 Potato Capital Quest</h2>
-  <p style="text-align:center;color:#c6cad4;">Grow your capital. Reach your goal.</p>
-
-  <div style="text-align:center;padding:15px;">
-    <div id="potato-avatar" style="font-size:100px;transition:transform .5s;">🥔</div>
-    <h3 id="potato-stage">Your journey starts here!</h3>
-    <div style="height:18px;background:#343b4b;border-radius:20px;overflow:hidden;">
-      <div id="potato-progress-bar" style="height:100%;width:0%;background:#80d878;transition:width .6s;"></div>
-    </div>
-    <p id="potato-progress-text">0% of your goal achieved</p>
-  </div>
-
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
-    <div style="background:#252c3b;padding:15px;border-radius:12px;">
-      <label>Starting capital (₹)</label>
-      <input id="potato-starting" type="number" min="0" step="0.01" value="0" style="width:100%;padding:10px;box-sizing:border-box;margin-top:8px;">
-    </div>
-    <div style="background:#252c3b;padding:15px;border-radius:12px;">
-      <label>Capital goal (₹)</label>
-      <input id="potato-goal" type="number" min="1" step="0.01" value="100000" style="width:100%;padding:10px;box-sizing:border-box;margin-top:8px;">
-    </div>
-  </div>
-
-  <button id="potato-save-settings" style="width:100%;padding:12px;margin-top:15px;border:0;border-radius:10px;background:#80d878;color:#152018;font-weight:bold;">
-    Save My Capital Goal
-  </button>
-
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:18px;">
-    <div style="background:#252c3b;padding:15px;border-radius:12px;">
-      <small>Starting Capital</small>
-      <h3 id="potato-start-display">₹0</h3>
-    </div>
-    <div style="background:#252c3b;padding:15px;border-radius:12px;">
-      <small>Trading P&L</small>
-      <h3 id="potato-pnl-display">₹0</h3>
-    </div>
-    <div style="background:#252c3b;padding:15px;border-radius:12px;">
-      <small>Cumulative Capital</small>
-      <h3 id="potato-current-display">₹0</h3>
-    </div>
-    <div style="background:#252c3b;padding:15px;border-radius:12px;">
-      <small>Amount Remaining</small>
-      <h3 id="potato-remaining-display">₹100,000</h3>
-    </div>
-  </div>
-
-  <p id="potato-status" role="status" style="text-align:center;margin-top:15px;"></p>
-  <p style="font-size:12px;color:#aeb5c5;text-align:center;">
-    Your progress should be based on your saved trading records and capital transactions.
-  </p>
-</section>
-
-<style>
-#potato-capital-dashboard input {
-  background:#fff;color:#111;border:1px solid #bbb;border-radius:7px;
-}
-#potato-capital-dashboard button {cursor:pointer;}
-@keyframes potatoBounce {
-  0%,100% { transform:translateY(0) rotate(-3deg); }
-  50% { transform:translateY(-9px) rotate(3deg); }
-}
-#potato-avatar {animation:potatoBounce 2s infinite;}
-</style>
-
-<script>
-(() => {
-  const $ = id => document.getElementById(id);
-  const money = value => new Intl.NumberFormat("en-IN", {
-    style:"currency",currency:"INR",maximumFractionDigits:2
-  }).format(Number(value) || 0);
-
-  function renderPotato(start, goal, pnl = 0, deposits = 0, withdrawals = 0) {
-    const current = Math.max(0, start + pnl + deposits - withdrawals);
-    const progress = Math.max(0, Math.min(100, goal > 0 ? current / goal * 100 : 0));
-
-    $("potato-start-display").textContent = money(start);
-    $("potato-pnl-display").textContent = money(pnl);
-    $("potato-current-display").textContent = money(current);
-    $("potato-remaining-display").textContent = money(Math.max(0, goal-current));
-    $("potato-progress-bar").style.width = progress + "%";
-    $("potato-progress-text").textContent = progress.toFixed(1) + "% of your goal achieved";
-
-    let stage, emoji, scale;
-    if (progress >= 100) {
-      stage = "🏆 Goal achieved! Amazing work!";
-      emoji = "🥔🎉";
-      scale = 1.6;
-    } else if (progress >= 75) {
-      stage = "🌿 Almost there!";
-      emoji = "🥔";
-      scale = 1.4;
-    } else if (progress >= 50) {
-      stage = "🌱 Your potato is growing!";
-      emoji = "🥔";
-      scale = 1.25;
-    } else if (progress >= 25) {
-      stage = "🌱 Your journey is growing!";
-      emoji = "🥔";
-      scale = 1.1;
-    } else {
-      stage = "🥔 Your journey starts here!";
-      emoji = "🥔";
-      scale = 1;
-    }
-
-    $("potato-avatar").textContent = emoji;
-    $("potato-avatar").style.transform = "scale(" + scale + ")";
-    $("potato-stage").textContent = stage;
-  }
-
-  const startingInput = $("potato-starting");
-  const goalInput = $("potato-goal");
-
-  let savedStart = Number(localStorage.getItem("potatoStartingCapital") || 0);
-  let savedGoal = Number(localStorage.getItem("potatoCapitalGoal") || 100000);
-  startingInput.value = savedStart;
-  goalInput.value = savedGoal;
-
-  renderPotato(savedStart, savedGoal);
-
-  $("potato-save-settings").addEventListener("click", () => {
-    const start = Number(startingInput.value);
-    const goal = Number(goalInput.value);
-
-    if (!Number.isFinite(start) || start < 0 || !Number.isFinite(goal) || goal <= 0) {
-      $("potato-status").textContent = "Enter a valid starting capital and a goal greater than zero.";
-      return;
-    }
-
-    savedStart = start;
-    savedGoal = goal;
-    localStorage.setItem("potatoStartingCapital", String(start));
-    localStorage.setItem("potatoCapitalGoal", String(goal));
-    renderPotato(start, goal);
-    $("potato-status").textContent = "Goal saved on this device. Supabase account syncing is the next step.";
-  });
-})();
-</script>
-</body>
-</html>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Recent trades</h2><p>Latest entries in your journal</p></div><button class="btn" data-goto="trades">View all trades →</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Date</th><th>Instrument</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Quantity</th><th>Journal P&L</th></tr></thead><tbody id="recentRows"></tbody></table><div id="recentEmpty" class="empty">No trades yet. Add a trade to start your journal.</div></div>
+        </div>
+      </section>
+
+      <section id="page-trades" class="page">
+        <div class="page-head"><div><div class="eyebrow">EXECUTION JOURNAL</div><h1>Trade history</h1><p>Review, filter and maintain your recorded trades.</p></div><button class="btn primary" data-goto="add">＋ Log a trade</button></div>
+        <div class="notice">P&L here is a simple entry/exit calculation: (exit − entry) × quantity for Long, reversed for Short. It does not yet include option contract multipliers, fees, funding, taxes or exchange-reported realized P&L.</div>
+        <div class="panel">
+          <div class="filters"><input id="filterSearch" type="search" placeholder="Search instrument..."><select id="filterDirection"><option value="">All directions</option><option>Long</option><option>Short</option></select><select id="filterStatus"><option value="">All trades</option><option value="closed">Closed only</option><option value="open">Open only</option></select><button class="btn" id="clearFilters">Reset filters</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Date</th><th>Instrument</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Quantity</th><th>Journal P&L</th><th>Notes</th><th>Action</th></tr></thead><tbody id="tradeRows"></tbody></table><div id="tradeEmpty" class="empty">No trades match this filter.</div></div>
+          <div id="historyMessage" style="padding:0 16px 14px"></div>
+        </div>
+      </section>
+
+      <section id="page-add" class="page">
+        <div class="page-head"><div><div class="eyebrow">TRADE CAPTURE</div><h1>Log a trade</h1><p>Record an execution and the reasoning behind it.</p></div></div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Trade details</h2><p>Manual entry for now · exchange sync will be a separate step</p></div></div>
+          <div class="panel-body">
+            <form id="tradeForm"><div class="form-grid">
+              <div class="field"><label for="tradeDate">Trade date</label><input id="tradeDate" type="date" required></div>
+              <div class="field"><label for="instrument">Instrument / symbol</label><input id="instrument" placeholder="BTCUSD, XAUT, NIFTY..." required></div>
+              <div class="field"><label for="direction">Direction</label><select id="direction"><option value="Short">Short / Sell</option><option value="Long">Long / Buy</option></select></div>
+              <div class="field"><label for="entryPrice">Entry price</label><input id="entryPrice" type="number" step="any" min="0" required></div>
+              <div class="field"><label for="exitPrice">Exit price (leave blank if open)</label><input id="exitPrice" type="number" step="any" min="0"></div>
+              <div class="field"><label for="quantity">Quantity / contracts</label><input id="quantity" type="number" step="any" min="0.00000001" value="1" required></div>
+              <div class="field full"><label for="entryReason">Entry reason</label><textarea id="entryReason" placeholder="Why did you enter this trade?"></textarea></div>
+              <div class="field full"><label for="exitReason">Exit reason</label><textarea id="exitReason" placeholder="Why did you exit?"></textarea></div>
+              <div class="field full"><label for="lessons">Lessons / review</label><textarea id="lessons" placeholder="What did you learn?"></textarea></div>
+            </div>
+            <button class="btn primary" id="saveBtn" type="submit" style="margin-top:16px">Save trade</button><div id="tradeMessage" aria-live="polite"></div>
+            </form>
+          </div>
+        </div>
+      </section>
